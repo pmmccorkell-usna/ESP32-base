@@ -1,0 +1,6 @@
+#SSIDs we know and want to connect to, in order of preference.
+approved_ssid=['REPLACE WITH YOUR SSID','GNBA-F']
+
+# The passwords in the same order
+# Enter 0 if no password / open network.
+approved_pw=('REPLACE WITH YOUR PASSWORD',0)
