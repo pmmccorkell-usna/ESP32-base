@@ -25,7 +25,7 @@ class mqttClass:
             'default':self.defaultFunction
         }
         self.mqtt.set_callback(self.trigger)
-        self.connect()
+        #self.connect()
 
     def test(self,top,msg):
         print()
