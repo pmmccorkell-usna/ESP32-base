@@ -2,19 +2,21 @@ from ubinascii import hexlify
 from machine import unique_id
 from umqttsimple import MQTTClient
 from time import sleep
+from random import randint
 
 
 class mqttClass:
     # Initial setup
     def __init__(self,hostIP,port=0,user=b'username',password=b'password'):
         self.mqtt_server=hostIP
-        self.client_id=hexlify(unique_id())
+        # self.client_id=hexlify(unique_id()+str(randint(1000,9999)))
+        self.client_id = str(randint(1000,9999))
         # port=0
         # user=b'username'
         # password=b'password'
         #mqtt=MQTTClient(client_id,mqtt_server,port,user,password)
         self.mqtt=MQTTClient(self.client_id,self.mqtt_server)
-  
+
         #Array of topics currently subscribed to.
         self.topic_list=set()
 
