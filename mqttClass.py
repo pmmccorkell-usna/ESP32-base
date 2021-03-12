@@ -33,7 +33,7 @@ from random import randint
 #
 # mqtt.topic_outsourcing['your Topic'] = yourFunction
 # mqtt.sub('your Topic')
-# # mqtt.update() must be used within the main loop to check for new messages on topic
+# # mqtt.update() must be used within the main loop to check for new messages on 'your Topic'.
 #
 
 class mqttClass:
