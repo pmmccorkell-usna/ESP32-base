@@ -7,7 +7,7 @@
 #
 
 from ubinascii import hexlify
-from machine import unique_id
+from machine import unique_id, Timer
 from umqttsimple import MQTTClient
 from time import sleep
 from random import randint
@@ -38,7 +38,7 @@ from random import randint
 
 class mqttClass:
 	# Initial setup
-	def __init__(self,hostIP,username=None,password=None):
+	def __init__(self,hostIP,username=None,password=None,subscriptions=None,interval=100,timer_n=1):
 		self.mqtt_server=hostIP
 		# self.client_id=hexlify(unique_id()+str(randint(1000,9999)))
 		self.client_id = str(randint(1000,9999))
@@ -48,17 +48,38 @@ class mqttClass:
 		#mqtt=MQTTClient(client_id,mqtt_server,port,user,password)
 		self.mqtt=MQTTClient(self.client_id,self.mqtt_server,port,username,password)
 
+		self.update_timer = Timer(timer_n)
+		self.timer_rate = interval
+
 		#Array of topics currently subscribed to.
 		self.topic_list=set()
 
-		# Dictionary to associate subscription topics to their function()
-		self.topic_outsourcing={
+		self.mqtt.set_callback(self.trigger)
+
+		topic_defaults={
 			# insert topic(s) as key, and function location as value
 			'test':self.test,
 			'default':self.defaultFunction
 		}
-		self.mqtt.set_callback(self.trigger)
+
+		# Dictionary to associate subscription topics to their function()
+		if type(subscriptions) is dict:
+			print("registered subscription dictionary")
+			self.topic_outsourcing = subscriptions
+			# self.auto_subscribe()
+			
+			# self.topic_outsourcing['default'] = self.defaultFunction
+		else:
+			self.topic_outsourcing = topic_defaults
+
+
 		#self.connect()
+
+	def auto_subscribe(self):
+		# print(self.topic_outsourcing)
+		for k in self.topic_outsourcing:
+			# print(k)
+			self.sub(k)
 
 	# For topic 'test', print out the topic and message
 	def test(self,top,msg):
@@ -71,8 +92,8 @@ class mqttClass:
 	# Redirect from MQTT callback function.
 	# Error checking.
 	def defaultFunction(self,top,msg):
-		print("PYTHON >> Discarding. No filter for topic "+str(top)+" discovered.")
-		print("PYTHON >> Discarded data: "+str(msg))
+		print("Discarding. No filter for topic "+str(top)+" discovered.")
+		print("Discarded data: "+str(msg))
 
 
 	#When a message is received, this function is called.
@@ -83,19 +104,22 @@ class mqttClass:
 		# Locate the function for the incoming topic. If not found, use the defaultFunction.
 		topicFunction=self.topic_outsourcing.get(topic,self.defaultFunction)
 		topicFunction(topic,message)
-		return self.update()
+		#return self.update()
 
 
 	#Connect and maintain MQTT connection to Home Assistant
 	def reconnect(self):
-		print("Dropped mqtt connection. Reconnecting")
+		print(self.mqtt_server+" dropped mqtt connection. Reconnecting")
 		sleep(2)
 		self.connect()
 	def connect(self):
 		try:
 			self.mqtt.connect()
+			print("Connected to "+self.mqtt_server)
 		except OSError as e:
 			self.reconnect()
+		self.auto_subscribe()
+		self.update_timer.init(mode=Timer.PERIODIC,period=self.timer_rate, callback=self.update_callback)
 		return 1
 
 	# Publish to a topic.
@@ -120,5 +144,17 @@ class mqttClass:
 		self.mqtt.subscribe(topic)
 
 	# Look for new messages on subscribed topics.
+	def update_callback(self,event=None):
+		try:
+			self.mqtt.check_msg()
+		except:
+			print('ERROR: '+self.mqtt_server+' failed callback.')
+			print("Quitting timer callback. Restart subscriptions.")
+			self.update_timer.deinit()
+			self.connect()
+
 	def update(self):
 		self.mqtt.check_msg()
+
+	def __str__(self):
+		return str(self.mqtt_server)
