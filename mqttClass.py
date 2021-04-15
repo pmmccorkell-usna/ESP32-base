@@ -54,6 +54,8 @@ class mqttClass:
 		#Array of topics currently subscribed to.
 		self.topic_list=set()
 
+		self.failcount=0
+
 		self.mqtt.set_callback(self.trigger)
 
 		topic_defaults={
@@ -66,14 +68,10 @@ class mqttClass:
 		if type(subscriptions) is dict:
 			print("registered subscription dictionary")
 			self.topic_outsourcing = subscriptions
-			# self.auto_subscribe()
-			
-			# self.topic_outsourcing['default'] = self.defaultFunction
 		else:
 			self.topic_outsourcing = topic_defaults
 
 
-		#self.connect()
 
 	def auto_subscribe(self):
 		# print(self.topic_outsourcing)
@@ -111,13 +109,17 @@ class mqttClass:
 	def reconnect(self):
 		print(self.mqtt_server+" dropped mqtt connection. Reconnecting")
 		sleep(2)
+		if (self.failcount>10):
+			return
 		self.connect()
+		self.failcount+=1
 	def connect(self):
 		try:
 			self.mqtt.connect()
 			print("Connected to "+self.mqtt_server)
 		except OSError as e:
 			self.reconnect()
+		self.failcount=0
 		self.auto_subscribe()
 		self.update_timer.init(mode=Timer.PERIODIC,period=self.timer_rate, callback=self.update_callback)
 		return 1
