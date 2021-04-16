@@ -43,15 +43,15 @@ from random import randint
 
 class mqttClass:
 	# Initial setup
-	def __init__(self,hostIP='192.168.5.4',username=None,key=None,subscriptions=None,interval=100,timer_n=1):
-		self.mqtt_server=hostIP
+	def __init__(self,host_IP='192.168.5.4',username=None,key=None,subscriptions=None,interval=100,timer_n=1):
+		self.mqtt_server=host_IP
 		# self.clientname=hexlify(unique_id()+str(randint(1000,9999)))
 		self.clientname = str(randint(1000,9999))
 		port=1883
 		# user=b'username'
 		# password=b'password'
 		#mqtt=MQTTClient(clientname,mqtt_server,port,user,password)
-		self.mqtt=MQTTClient(self.clientname,self.mqtt_server,port,username,password)
+		self.mqtt=MQTTClient(self.clientname,self.mqtt_server,port,username,key)
 
 		self.update_timer = Timer(timer_n)
 		self.timer_rate = interval
@@ -147,8 +147,8 @@ class mqttClass:
 		# Format the data into variables that are python friendly.
 		topic=bytes_topic.decode()
 		message = bytes_msg.decode()
-		# Locate the function for the incoming topic. If not found, use the defaultFunction.
-		topicFunction=self.topic_outsourcing.get(topic,self.defaultFunction)
+		# Locate the function for the incoming topic. If not found, use the default_function.
+		topicFunction=self.topic_outsourcing.get(topic,self.default_function)
 		topicFunction(topic,message)
 		#return self.update()
 
