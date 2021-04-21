@@ -126,7 +126,7 @@ class mqttClass:
 		# print(self.topic_outsourcing)
 		for k in self.topic_outsourcing:
 			self.sub(k)
-			print('subscribed to +' + str(k))
+			print('subscribed to ' + str(k))
 
 	# For topic 'test', print out the topic and message
 	def test_function(self,top,msg):
