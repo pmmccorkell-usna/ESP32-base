@@ -1,3 +1,10 @@
+# Patrick McCorkell
+# February 2021
+# US Naval Academy
+# Robotics and Control TSD
+#
+
+
 import os
 import ujson
 from machine import reset,Pin,ADC,PWM

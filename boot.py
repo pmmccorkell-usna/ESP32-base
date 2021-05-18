@@ -1,3 +1,10 @@
+# Patrick McCorkell
+# February 2021
+# US Naval Academy
+# Robotics and Control TSD
+#
+
+
 # This file is executed on every boot (including wake-boot from deepsleep)
 import webrepl
 webrepl.start()

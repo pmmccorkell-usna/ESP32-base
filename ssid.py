@@ -1,3 +1,10 @@
+# Patrick McCorkell
+# February 2021
+# US Naval Academy
+# Robotics and Control TSD
+#
+
+
 #SSIDs we know and want to connect to, in order of preference.
 approved_ssid=['REPLACE WITH YOUR SSID','SURF','GNBA-F']
 
