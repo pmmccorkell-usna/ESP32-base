@@ -1,3 +1,4 @@
+
 #
 # Streamlined class of umqttsimple for micropython
 # US Naval Academy
@@ -81,10 +82,12 @@ class mqttClass:
 	def reconnect(self):
 		print(self.mqtt_server+" dropped mqtt connection. Reconnecting")
 		sleep(2)
-		if (self.failcount>10):
-			return
-		self.connect()
+		if (self.failcount<10):
+			self.connect()
+		else:
+	  		print('Too many reconnect attempts. Restart program.')
 		self.failcount+=1
+
 	def connect(self):
 		try:
 			self.mqtt.connect()
@@ -168,6 +171,7 @@ class mqttClass:
 		while (sent<100):
 			try:
 				self.mqtt.publish(topic,str(message))
+
 	#			print("checks in the mail")
 				sent=9000
 			except OSError as e:
@@ -175,5 +179,6 @@ class mqttClass:
 				print("mqtt dropped " + str(sent) + "times")
 				sent+=1
 				sleep(0.1)
+
 
 

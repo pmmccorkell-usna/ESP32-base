@@ -15,13 +15,6 @@ except:
 from time import sleep
 from ubinascii import hexlify
 from gc import collect as trash
-try:
-	from wrce_ssid import *
-	print("wrce ssids loaded")
-except:
-	from ssid import *
-	print("ssids loaded")
-
 
 
 #Define function to reload modules
@@ -75,46 +68,6 @@ def log(data,filename='logfile'):
 	f.write(ujson.dumps(data))
 	f.close()
 
-#connects wifi network to the indexed value in approved_ssid list
-def connect_wifi(index):
-	print("attempting connection to " + approved_ssid[index])
-	if (approved_pw[index]!=0):
-		wlan0.connect(approved_ssid[index],approved_pw[index])
-	else:
-		wlan0.connect(approved_ssid[index])
-
-# wifi scanning and matching
-def multi_wifi():
-	ssid_count=len(approved_ssid)
-	scan_list=wlan0.scan()
-	l=len(scan_list)
-	ssid_list=[]
-	for i in range(0,l):
-		ssid_list.append((scan_list[i][0]).decode())
-	i=0
-	while(i<ssid_count):
-		if (ssid_list.count(approved_ssid[i])):
-			print("found "+approved_ssid[i])
-
-			connect_wifi(i)
-			break;
-		i+=1
-
-# Check if Wifi connected.
-if (wlan0.isconnected()==True):
-	print()
-	print('Connection successful')
-	print(wlan0.ifconfig())
-	print()
-	print(wlan0.ifconfig()[0])
-	print()
-
-
-def wifi():
-	try:
-		multi_wifi()
-	except:
-		print("wifi connection failed")
 
 #########################
 ### DEFAULT I2C SETUP ###
@@ -122,9 +75,15 @@ def wifi():
 
 #Read and Write functions use unsigned integers. Check your data sheet if twos_comp or the like is needed.
 
-# i2c setup for Adafruit Feathers
+# i2c setup
+
+# Heltec OLED i2c pins
+#SCL=Pin(15)
+#SDA=Pin(4)
+
+# Adafruit Feather i2c pins
 SCL=Pin(22)
-SDA=Pin(23)
+SDA=Pin(23)	
 i2c = I2C(sda=SDA,scl=SCL)
 
 # Tell us the address of every device connected to I2C.
@@ -166,7 +125,8 @@ def i2c_read_L(address,register,length):
 		i-=1
 	return returnval
 
-# Clean up memory.
-trash()
-
-
+try:
+  wlan0.connect('SURF','12345678')
+  # wlan0.connect('GNBA-F')
+except:
+  print('wifi error')
